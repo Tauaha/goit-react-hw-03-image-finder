@@ -19,14 +19,13 @@ export default class App extends Component {
     error: null,
     ShowModal: false,
     largeImageURL: '',
-   
-
   };
+  
   componentDidUpdate(prevProps, prevState) {
     const { query, page } = this.state;
     if(page !== prevState.page || query !== prevState.query){
-this.setState({ isLoading: true })
-pixabayApi.fetchImages( query, page ).then(data => this.setState({ images: data.hits, isloading:false}))
+this.setState({ isLoading: true,  })
+pixabayApi.fetchImages( query, page ).then(data => this.setState((prev) =>({ images: [...prev.images, ...data.hits], isloading:false, })))
 .catch(error => this.setState({ error })).finally(() => {
   					this.setState({ isLoading: false })
   				})
@@ -35,11 +34,13 @@ pixabayApi.fetchImages( query, page ).then(data => this.setState({ images: data.
    
   }
   incrementPage = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  
+    this.setState((prev) => ({ page: prev.page + 1 }));
+   
   };
 
   handleFormSubmit = query => {
-    this.setState({ query });
+    this.setState({ query,  images: [], page: 1});
    }
    toggleModal = ({ largeImageURL = '' } = {}) => {
     this.setState(({ showModal }) => ({
@@ -52,7 +53,6 @@ pixabayApi.fetchImages( query, page ).then(data => this.setState({ images: data.
 
   render() {
 const {images, largeImageURL,showModal, isLoading} = this.state;
-console.log(images.length)
     return (
       <div className={Styles.container} >
           <Searchbar onSubmit={this.handleFormSubmit}/> 
@@ -62,7 +62,7 @@ console.log(images.length)
           {showModal && (
           <Modal closeModal={this.toggleModal} largeImageURL={largeImageURL} />
         )}
-{images.length > 11 ? <ButtonLoadMore incrementPage={this.incrementPage} LoadBtnHide={this.LoadBtnHide}/> : null}
+{images.length > 11? <ButtonLoadMore incrementPage={this.incrementPage} LoadBtnHide={this.LoadBtnHide}/> : null}
      
       </div>
     );
